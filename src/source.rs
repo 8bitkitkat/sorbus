@@ -3,15 +3,15 @@ use {
     std::marker::PhantomData,
 };
 
-pub struct Source<'t, 's, K: TokenKindTrait, T: TokenTrait<K>> {
-    tokens: &'t [T],
+pub struct Source<'s, K: TokenKindTrait, T: TokenTrait<K>> {
+    tokens: &'s [T],
     src: &'s str,
     cursor: usize,
     _p: PhantomData<K>,
 }
 
-impl<'t, 's, K: TokenKindTrait, T: TokenTrait<K>> Source<'t, 's, K, T> {
-    pub fn new(tokens: &'t [T], src: &'s str) -> Self {
+impl<'s, K: TokenKindTrait, T: TokenTrait<K>> Source<'s, K, T> {
+    pub fn new(tokens: &'s [T], src: &'s str) -> Self {
         Self {
             tokens,
             src,
@@ -61,7 +61,7 @@ impl<'t, 's, K: TokenKindTrait, T: TokenTrait<K>> Source<'t, 's, K, T> {
         self.tokens.get(self.cursor)
     }
 
-    pub fn into_parts(self) -> (&'t [T], &'s str) {
+    pub fn into_parts(self) -> (&'s [T], &'s str) {
         (self.tokens, self.src)
     }
 }

@@ -3,8 +3,8 @@ use {
     std::error::Error,
 };
 
-pub struct Sink<'t, 's, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + PartialEq> {
-    tokens: &'t [T],
+pub struct Sink<'s, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + PartialEq> {
+    tokens: &'s [T],
     src: &'s str,
     cursor: usize,
     builder: GreenNodeBuilder<'static>,
@@ -12,10 +12,8 @@ pub struct Sink<'t, 's, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + 
     errors: Vec<E>,
 }
 
-impl<'t, 's, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + PartialEq>
-    Sink<'t, 's, K, T, E>
-{
-    pub fn new(tokens: &'t [T], src: &'s str, events: Vec<Event<K, E>>) -> Self {
+impl<'s, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + PartialEq> Sink<'s, K, T, E> {
+    pub fn new(tokens: &'s [T], src: &'s str, events: Vec<Event<K, E>>) -> Self {
         Self {
             tokens,
             src,
