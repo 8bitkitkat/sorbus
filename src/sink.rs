@@ -1,9 +1,6 @@
-use {
-    crate::{rowan::GreenNodeBuilder, Event, ParseRes, TokenKindTrait, TokenTrait},
-    std::error::Error,
-};
+use crate::{rowan::GreenNodeBuilder, Event, ParseResult, TokenKindTrait, TokenTrait};
 
-pub struct Sink<'s, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + PartialEq> {
+pub struct Sink<'s, K: TokenKindTrait, T: TokenTrait<K>, E: PartialEq> {
     tokens: &'s [T],
     src: &'s str,
     cursor: usize,
@@ -12,7 +9,7 @@ pub struct Sink<'s, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + Part
     errors: Vec<E>,
 }
 
-impl<'s, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + PartialEq> Sink<'s, K, T, E> {
+impl<'s, K: TokenKindTrait, T: TokenTrait<K>, E: PartialEq> Sink<'s, K, T, E> {
     pub fn new(tokens: &'s [T], src: &'s str, events: Vec<Event<K, E>>) -> Self {
         Self {
             tokens,
@@ -24,7 +21,7 @@ impl<'s, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + PartialEq> Sink
         }
     }
 
-    pub fn finish<Lang: rowan::Language<Kind = K>>(mut self) -> ParseRes<E> {
+    pub fn finish<Lang: rowan::Language<Kind = K>>(mut self) -> ParseResult<E> {
         for idx in 0..self.events.len() {
             match std::mem::replace(&mut self.events[idx], Event::Placeholder) {
                 Event::StartNode {
@@ -68,7 +65,7 @@ impl<'s, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + PartialEq> Sink
             self.eat_trivia::<Lang>();
         }
 
-        ParseRes {
+        ParseResult {
             green_node: self.builder.finish(),
             errors: if self.errors.is_empty() {
                 None
@@ -91,7 +88,7 @@ impl<'s, K: TokenKindTrait, T: TokenTrait<K>, E: Error + Clone + PartialEq> Sink
 
     fn eat_trivia<Lang: rowan::Language<Kind = K>>(&mut self) {
         while let Some(lexeme) = self.tokens.get(self.cursor) {
-            if !lexeme.kind().is_trivia() {
+            if !lexeme.kind().is_trivial() {
                 break;
             }
 

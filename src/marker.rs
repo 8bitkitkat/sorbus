@@ -1,7 +1,7 @@
 use {
     crate::{Event, ParserTrait, TokenKindTrait},
     drop_bomb::DebugDropBomb,
-    std::error::Error,
+    std::fmt::Debug,
 };
 
 #[derive(Debug)]
@@ -18,11 +18,12 @@ impl Marker {
         }
     }
 
-    pub fn complete<K: TokenKindTrait, E: Error + Clone + PartialEq, P: ParserTrait<K, E>>(
-        mut self,
-        p: &mut P,
-        kind: K,
-    ) -> CompletedMarker {
+    pub fn complete<K, E, P>(mut self, p: &mut P, kind: K) -> CompletedMarker
+    where
+        K: TokenKindTrait,
+        E: Debug + PartialEq,
+        P: ParserTrait<K, E>,
+    {
         self.bomb.defuse();
 
         let event_at_pos = &mut p.events()[self.pos];
@@ -45,10 +46,12 @@ pub struct CompletedMarker {
 }
 
 impl CompletedMarker {
-    pub fn precede<K: TokenKindTrait, E: Error + Clone + PartialEq, P: ParserTrait<K, E>>(
-        self,
-        p: &mut P,
-    ) -> Marker {
+    pub fn precede<K, E, P>(self, p: &mut P) -> Marker
+    where
+        K: TokenKindTrait,
+        E: Debug + PartialEq,
+        P: ParserTrait<K, E>,
+    {
         let new_m = p.node_start();
 
         if let Event::StartNode {

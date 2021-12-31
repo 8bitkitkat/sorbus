@@ -50,7 +50,7 @@ impl<'s, K: TokenKindTrait, T: TokenTrait<K>> Source<'s, K, T> {
     }
 
     fn at_trivia(&self) -> bool {
-        self.peek_kind_raw().map_or(false, K::is_trivia)
+        self.peek_kind_raw().map_or(false, K::is_trivial)
     }
 
     fn peek_kind_raw(&self) -> Option<K> {
